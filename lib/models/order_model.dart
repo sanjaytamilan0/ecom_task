@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:ecom_task/screens/cart_screen/model/cart_model.dart';
+import 'package:ecom_task/models/cart_model.dart';
 
 class OrderModel {
   final int? id;
-  final List<CartItem> cartItems; // ✅ New
+  final List<CartItem> cartItems;
   final double totalAmount;
   final String cardNumber;
   final String cardHolder;

@@ -1,7 +1,8 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
 import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
+import 'package:ecom_task/common/widgets/dialog_box/dialog_box.dart';
 import 'package:ecom_task/screens/cart_screen/riverpod/cart_notifier.dart';
-import 'package:ecom_task/screens/product_view/model/product_model.dart';
+import 'package:ecom_task/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
@@ -33,7 +34,7 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
 
     return Scaffold(
       backgroundColor: AppColor().bgColor,
-      appBar: CustomAppBar(title: product.title,showLeading: true,),
+      appBar: CustomAppBar(title: product.category,showLeading: true,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -134,11 +135,8 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   ref.read(cartProvider.notifier).addToCart(product,quantity);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Added $quantity item(s) to cart"),
-                    ),
-                  );
+
+                  ResponseDialog.showStatusDialog(ResponseDialog.success, "Added $quantity item(s) to cart");
                 },
                 icon:  Icon(Icons.shopping_cart_outlined, size: 22,color: AppColor().white),
                 label:  Text(

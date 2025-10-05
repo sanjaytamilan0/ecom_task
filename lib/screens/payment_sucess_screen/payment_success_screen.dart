@@ -7,21 +7,27 @@ class SuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, size: 100, color: Colors.green),
-            SizedBox(height: 20),
-            Text("Payment Successful!", style: TextStyle(fontSize: 20)),
-            ElevatedButton(
-              onPressed: () {
-                Get.offNamed(AppRoutes.bnb);
-              },
-              child: Text("Back to Home"),
-            )
-          ],
+    return WillPopScope(
+      onWillPop: ()async{
+        Get.offAllNamed(AppRoutes.bnb);
+        return false;
+      },
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, size: 100, color: Colors.green),
+              SizedBox(height: 20),
+              Text("Payment Successful!", style: TextStyle(fontSize: 20)),
+              ElevatedButton(
+                onPressed: () {
+                  Get.offNamed(AppRoutes.bnb);
+                },
+                child: Text("Back to Home"),
+              )
+            ],
+          ),
         ),
       ),
     );

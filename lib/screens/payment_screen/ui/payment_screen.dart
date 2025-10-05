@@ -1,5 +1,6 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
 import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
+import 'package:ecom_task/common/widgets/dialog_box/dialog_box.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +44,9 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         cardNumber: _cardNumberController.text,
         cardHolder: _nameController.text,
         total: cartState.totalPrice,
+      );ResponseDialog.showStatusDialog(
+        ResponseDialog.success,
+        "Thank you, ${_nameController.text}! Your order has been placed successfully.",
       );
 
       ref.read(cartProvider.notifier).clearCart();
@@ -63,10 +67,18 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         prefixIcon: icon != null ? Icon(icon) : null,
         filled: true,
         fillColor: AppColor().liteBlue,
-        border: OutlineInputBorder(
+        enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: Colors.black26,
+            width: 1.0,
+          ),
+        ),
+
       );
     }
 
@@ -244,7 +256,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                 minimumSize: const Size(double.infinity, 50),
               ),
               child: _isProcessing
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? ResponseDialog.loader
                   :  Text("Pay Now", style: TextStyle(fontSize: 16,color: AppColor().white)),
             ),
           ],

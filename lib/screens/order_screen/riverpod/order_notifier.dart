@@ -1,8 +1,8 @@
 import 'package:ecom_task/screens/cart_screen/riverpod/cart_notifier.dart';
+import 'package:ecom_task/service/local_storage/sqf_lite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ecom_task/common/service/local_storage/sqf_lite.dart';
-import 'package:ecom_task/screens/cart_screen/model/cart_model.dart';
-import 'package:ecom_task/screens/order_screen/model/order_model.dart';
+import 'package:ecom_task/models/cart_model.dart';
+import 'package:ecom_task/models/order_model.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 class OrderState {

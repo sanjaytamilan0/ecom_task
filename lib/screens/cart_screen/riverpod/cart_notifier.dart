@@ -1,5 +1,5 @@
-import 'package:ecom_task/screens/cart_screen/model/cart_model.dart';
-import 'package:ecom_task/screens/product_view/model/product_model.dart';
+import 'package:ecom_task/models/cart_model.dart';
+import 'package:ecom_task/models/product_model.dart';
 import 'package:ecom_task/screens/product_view/riverpod/product_notifier.dart';
 import 'package:ecom_task/service/local_storage/sqf_lite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -65,7 +65,7 @@ class CartNotifier extends StateNotifier<CartState> {
     await ProductDatabase.instance.addOrUpdateCartItem(product, quantity);
     await Future.wait([
       loadCart(),
-      ref.read(productProvider.notifier).getProduct(),
+      ref.read(productProvider.notifier).addToCartFromProduct(),
     ]);
   }
 

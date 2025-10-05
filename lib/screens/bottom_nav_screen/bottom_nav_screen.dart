@@ -1,12 +1,9 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
-import 'package:ecom_task/common/app_route/app_route_name.dart';
 import 'package:ecom_task/screens/cart_screen/ui/cart_screen.dart';
 import 'package:ecom_task/screens/order_screen/ui/order_screen.dart';
-import 'package:ecom_task/screens/product_detail_view/product_detail_view.dart';
 import 'package:ecom_task/screens/product_view/ui/product_view.dart';
 import 'package:ecom_task/screens/wishlist_screen/wishlist_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class BottomNavBarScreen extends StatefulWidget {
   @override
@@ -31,46 +28,59 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor().white,
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+    return WillPopScope(
+      onWillPop: ()async{
+        if(_selectedIndex == 0){
+          return true;
+        }else{
+          setState(() {
+            _selectedIndex =0;
+          });
+          return false;
+        }
+        return false;
+      },
+      child: Scaffold(
         backgroundColor: AppColor().white,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: AppColor().primaryColor,
-        unselectedItemColor: Colors.black,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.shopping_bag),
-            label: 'Products',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.shopping_cart,
-              color: _selectedIndex == 1 ? AppColor().primaryColor : AppColor().black,
+        body: _screens[_selectedIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: AppColor().white,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: AppColor().primaryColor,
+          unselectedItemColor: Colors.black,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.shopping_bag),
+              label: 'Products',
             ),
-            label: 'cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.receipt_long,
-              color: _selectedIndex == 2 ? AppColor().primaryColor : AppColor().black,
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.shopping_cart,
+                color: _selectedIndex == 1 ? AppColor().primaryColor : AppColor().black,
+              ),
+              label: 'cart',
             ),
-            label: 'Orders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.favorite_border,
-              color: _selectedIndex == 3 ? AppColor().primaryColor : AppColor().black,
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.receipt_long,
+                color: _selectedIndex == 2 ? AppColor().primaryColor : AppColor().black,
+              ),
+              label: 'Orders',
             ),
-            label: 'wishlist',
-          ),
-        ],
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.favorite_border,
+                color: _selectedIndex == 3 ? AppColor().primaryColor : AppColor().black,
+              ),
+              label: 'wishlist',
+            ),
+          ],
+
+        ),
 
       ),
-
     );
   }
 }

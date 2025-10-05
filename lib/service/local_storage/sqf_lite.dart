@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:ecom_task/screens/order_screen/model/order_model.dart';
-import 'package:ecom_task/screens/product_view/model/product_model.dart';
+import 'package:ecom_task/models/order_model.dart';
+import 'package:ecom_task/models/product_model.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -103,7 +103,6 @@ class ProductDatabase {
     final db = await instance.database;
 
     for (var product in products) {
-      // Preserve cartQuantity if product already exists
       final existing = await db.query(
         'products',
         where: 'id = ?',
@@ -232,9 +231,9 @@ class ProductDatabase {
     );
 
     if (updated == 0) {
-      print("⚠️ Failed to update cartQuantity in products table for productId: $productId");
+      print("Failed to update cartQuantity in products table for productId: $productId");
     } else {
-      print("✅ Updated cartQuantity in products table: $quantity (productId: $productId)");
+      print("Updated cartQuantity in products table: $quantity (productId: $productId)");
     }
   }
 

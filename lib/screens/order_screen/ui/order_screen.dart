@@ -1,6 +1,6 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
 import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
-import 'package:ecom_task/screens/order_screen/model/order_model.dart';
+import 'package:ecom_task/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../riverpod/order_notifier.dart';
@@ -111,7 +111,7 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(height: 10),
               Row(
                 children: order.cartItems
-                    .take(3)
+                    .take(5)
                     .map((cartItem) => Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ClipRRect(

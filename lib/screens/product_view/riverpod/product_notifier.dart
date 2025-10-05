@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:ecom_task/common/service/local_storage/sqf_lite.dart';
-import 'package:ecom_task/common/service/repo/repo.dart';
-import 'package:ecom_task/screens/product_view/model/product_model.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ecom_task/models/product_model.dart';
+import 'package:ecom_task/service/local_storage/sqf_lite.dart';
+import 'package:ecom_task/service/repo/repo.dart';
 import 'package:flutter_riverpod/legacy.dart';
 class ProductState {
   final bool isLoading;
   final String? error;
   final bool isSuccess;
   final String? message;
+  final List<ProductModel>? allProducts;
   final List<ProductModel>? productData;
-  final List<ProductModel>? likedProducts; // New field for liked products
+  final List<ProductModel>? likedProducts;
   final String search;
 
   ProductState({
@@ -19,8 +19,9 @@ class ProductState {
     this.error,
     required this.isSuccess,
     this.message,
+    this.allProducts,
     this.productData,
-    this.likedProducts, // add this param
+    this.likedProducts,
     this.search = '',
   });
 
@@ -28,7 +29,9 @@ class ProductState {
     return ProductState(
       isLoading: false,
       isSuccess: false,
-      likedProducts: [], // initialize likedProducts as empty list
+      likedProducts: [],
+      allProducts: [],
+      productData: [],
     );
   }
 
@@ -37,6 +40,7 @@ class ProductState {
     String? error,
     bool? isSuccess,
     String? message,
+    List<ProductModel>? allProducts,
     List<ProductModel>? productData,
     List<ProductModel>? likedProducts,
     String? search,
@@ -46,6 +50,7 @@ class ProductState {
       error: error ?? this.error,
       isSuccess: isSuccess ?? this.isSuccess,
       message: message ?? this.message,
+      allProducts: allProducts ?? this.allProducts,
       productData: productData ?? this.productData,
       likedProducts: likedProducts ?? this.likedProducts,
       search: search ?? this.search,
@@ -57,9 +62,40 @@ class ProductState {
 
 class ProductNotifier extends StateNotifier<ProductState> {
   ProductNotifier() : super(ProductState.initial()){
-    getProduct();
+    initFetch();
   }
   Timer? _debounce;
+  Future<void> initFetch() async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final localProducts = await ProductDatabase.instance.getAllProducts();
+
+      if (localProducts.isNotEmpty) {
+        final likedList = localProducts.where((product) => product.isLiked).toList();
+        final filtered = state.search.isEmpty
+            ? localProducts
+            : localProducts.where((product) =>
+            product.title.toLowerCase().contains(state.search.toLowerCase()))
+            .toList();
+
+        state = state.copyWith(
+          allProducts: localProducts,
+          productData: filtered,
+          likedProducts: likedList,
+          isSuccess: true,
+          isLoading: false,
+        );
+      } else {
+        await getProduct();
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      );
+    }
+  }
 
   Future<void> getProduct() async {
     state = state.copyWith(isLoading: true, error: null, isSuccess: false);
@@ -78,7 +114,7 @@ class ProductNotifier extends StateNotifier<ProductState> {
         );
         return apiProd.copyWith(
           isLiked: localProd.isLiked,
-          cartQuantity: localProd.cartQuantity,  // Add this line
+          cartQuantity: localProd.cartQuantity,
         );
       }).toList();
 
@@ -86,10 +122,17 @@ class ProductNotifier extends StateNotifier<ProductState> {
 
       final likedList = mergedProducts.where((product) => product.isLiked).toList();
 
+      final filtered = state.search.isEmpty
+          ? mergedProducts
+          : mergedProducts.where((product) =>
+          product.title.toLowerCase().contains(state.search.toLowerCase())
+      ).toList();
+
       state = state.copyWith(
         isLoading: false,
         isSuccess: true,
-        productData: mergedProducts,
+        allProducts: mergedProducts,
+        productData: filtered,
         likedProducts: likedList,
       );
     } catch (error) {
@@ -98,15 +141,21 @@ class ProductNotifier extends StateNotifier<ProductState> {
 
       final likedList = localData.where((product) => product.isLiked).toList();
 
+      final filtered = state.search.isEmpty
+          ? localData
+          : localData.where((product) =>
+          product.title.toLowerCase().contains(state.search.toLowerCase())
+      ).toList();
+
       state = state.copyWith(
         isLoading: false,
-        productData: localData,
+        allProducts: localData,
+        productData: filtered,
         likedProducts: likedList,
         error: error.toString(),
       );
     }
   }
-
 
   Future<void> toggleLike(int productId) async {
     final currentList = state.productData ?? [];
@@ -153,6 +202,15 @@ class ProductNotifier extends StateNotifier<ProductState> {
       }
     });
   }
+
+  Future<void> addToCartFromProduct() async {
+
+    await initFetch();
+    if (state.search.isNotEmpty) {
+      updateSearch(state.search);
+    }
+  }
+
 
 
   @override

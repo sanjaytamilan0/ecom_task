@@ -23,7 +23,7 @@ class _ProductViewState extends ConsumerState<ProductView> {
     _searchController = TextEditingController();
 
     Future.microtask(() {
-      ref.read(productProvider.notifier).getProduct();
+      ref.read(productProvider.notifier).initFetch();
     });
   }
 
@@ -33,26 +33,46 @@ class _ProductViewState extends ConsumerState<ProductView> {
     super.dispose();
   }
 
+  int _getCrossAxisCount(double width) {
+    if (width < 600) return 2;
+    if (width < 900) return 3;
+    if (width < 1200) return 4;
+    return 5;
+  }
+
+  double _getChildAspectRatio(double width) {
+    if (width < 360) return 0.6;
+    if (width < 600) return 0.65;
+    if (width < 900) return 0.7;
+    return 0.75;
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(productProvider);
     final notifier = ref.read(productProvider.notifier);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: AppColor().bgColor,
       appBar: AppBar(
-
         backgroundColor: AppColor().primaryColor,
-        title:  Text('Products',style: TextStyle(color: AppColor().white),),
+        title: Text(
+          'Products',
+          style: TextStyle(color: AppColor().white),
+        ),
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: EdgeInsets.all(screenWidth < 360 ? 8.0 : 12.0),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search for products...',
+                hintStyle: TextStyle(
+                  fontSize: screenWidth < 360 ? 13 : 14,
+                ),
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: state.search.isNotEmpty
                     ? IconButton(
@@ -67,6 +87,10 @@ class _ProductViewState extends ConsumerState<ProductView> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: screenWidth < 360 ? 12 : 14,
+                ),
               ),
               onChanged: (value) {
                 if (value.isEmpty) {
@@ -76,53 +100,95 @@ class _ProductViewState extends ConsumerState<ProductView> {
               },
             ),
           ),
+
           Expanded(
             child: Builder(
               builder: (_) {
                 if ((state.productData?.isEmpty ?? true) && state.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (state.error != null) {
                   return Center(
-                    child: Text(
-                      state.error!,
-                      style: const TextStyle(color: Colors.red),
+                    child: CircularProgressIndicator(
+                      color: AppColor().primaryColor,
                     ),
                   );
                 }
 
                 if (state.productData == null || state.productData!.isEmpty) {
-                  return const Center(child: Text('No product found'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No product found',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
-                return ListView.builder(
-                  itemCount: state.productData!.length,
-                  itemBuilder: (context, index) {
-                    final data = state.productData![index];
-                    return ProductCard(
-                      product: data,
-                      onLikeToggle: () {
-                        ref.read(productProvider.notifier).toggleLike(data.id);
-                      },
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final crossAxisCount = _getCrossAxisCount(constraints.maxWidth);
+                    final childAspectRatio = _getChildAspectRatio(constraints.maxWidth);
+                    final horizontalPadding = constraints.maxWidth < 360 ? 8.0 : 12.0;
+                    final spacing = constraints.maxWidth < 360 ? 12.0 : 16.0;
 
-                      onAddToCart: () {
-                        ref.read(cartProvider.notifier).addToCart(data, 1);
-                      },
-                      onIncrement: () {
-                        ref.read(cartProvider.notifier).addToCart(data, data.cartQuantity + 1);
-                      },
-                      onDecrement: () {
-                        if (data.cartQuantity > 1) {
-                          ref.read(cartProvider.notifier).addToCart(data, data.cartQuantity - 1);
-                        } else {
-                          ref.read(cartProvider.notifier).removeItem(data.id);
-                        }
-                      },
-                      cardClick: () {
-                        Get.toNamed(AppRoutes.productDetailView, arguments: {
-                          "product": data,
-                        });
+                    return GridView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
+                        vertical: 10,
+                      ),
+                      itemCount: state.productData!.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        mainAxisSpacing: spacing,
+                        crossAxisSpacing: spacing,
+                        childAspectRatio: childAspectRatio,
+                      ),
+                      itemBuilder: (context, index) {
+                        final data = state.productData![index];
+                        return ProductCard(
+                          product: data,
+                          onLikeToggle: () {
+                            ref.read(productProvider.notifier).toggleLike(data.id);
+                          },
+                          onAddToCart: () {
+                            ref.read(cartProvider.notifier).addToCart(data, 1);
+                          },
+                          onIncrement: () {
+                            ref.read(cartProvider.notifier).addToCart(
+                              data,
+                              data.cartQuantity + 1,
+                            );
+                          },
+                          onDecrement: () {
+                            if (data.cartQuantity > 1) {
+                              ref.read(cartProvider.notifier).addToCart(
+                                data,
+                                data.cartQuantity - 1,
+                              );
+                            } else {
+                              ref.read(cartProvider.notifier).removeItem(data.id);
+                            }
+                          },
+                          cardClick: () {
+                            Get.toNamed(
+                              AppRoutes.productDetailView,
+                              arguments: {
+                                "product": data,
+                              },
+                            );
+                          },
+                        );
                       },
                     );
                   },

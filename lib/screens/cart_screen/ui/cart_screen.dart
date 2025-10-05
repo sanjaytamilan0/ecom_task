@@ -50,10 +50,28 @@ class CartScreen extends ConsumerWidget {
                             height: 70,
                             width: 70,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, _, __) =>
-                                Container(color: Colors.grey[200], width: 70, height: 70),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                width: 70,
+                                height: 70,
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
+
                         const SizedBox(width: 12),
 
                         Expanded(

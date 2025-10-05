@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+
+WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
