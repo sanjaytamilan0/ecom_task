@@ -1,5 +1,6 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
 import 'package:ecom_task/common/app_route/app_route_name.dart';
+import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
@@ -10,26 +11,20 @@ class CartScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cartState = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
-
-    if (cartState.cartItems.isEmpty) {
-      return Scaffold(
-
-        backgroundColor: AppColor().bgColor,
-        appBar: AppBar(backgroundColor:AppColor().primaryColor,title:  Text('My Cart',style: TextStyle(color: AppColor().white),)),
-        body: const Center(
-          child: Text(
-            '🛒 Your cart is empty',
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppColor().bgColor,
-      appBar: AppBar(
-          backgroundColor:AppColor().primaryColor,title:  Text('My Cart',style: TextStyle(color: AppColor().white),)),
-      body: Column(
+
+      appBar: CustomAppBar(title: "My Cart",showLeading: false,),
+      body:cartState.cartItems.isEmpty&&cartState.isLoading?
+          Center(child: CircularProgressIndicator(),)
+          :cartState.cartItems.isEmpty?
+      const Center(
+        child: Text(
+          '🛒 Your cart is empty',
+          style: TextStyle(fontSize: 18),
+        ),
+      ):
+      Column(
         children: [
           Expanded(
             child: ListView.builder(

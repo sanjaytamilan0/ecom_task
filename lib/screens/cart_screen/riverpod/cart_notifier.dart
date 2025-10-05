@@ -1,45 +1,57 @@
 import 'package:ecom_task/screens/cart_screen/model/cart_model.dart';
 import 'package:ecom_task/screens/product_view/model/product_model.dart';
+import 'package:ecom_task/screens/product_view/riverpod/product_notifier.dart';
+import 'package:ecom_task/service/local_storage/sqf_lite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ecom_task/common/service/local_storage/sqf_lite.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 class CartState {
   final List<CartItem> cartItems;
   final double totalPrice;
+  final bool isLoading;
 
   CartState({
     required this.cartItems,
     required this.totalPrice,
+    required this.isLoading,
   });
 
   factory CartState.initial() {
-    return CartState(cartItems: [], totalPrice: 0);
+    return CartState(
+      cartItems: [],
+      totalPrice: 0,
+      isLoading: false,
+    );
   }
 
   CartState copyWith({
     List<CartItem>? cartItems,
     double? totalPrice,
+    bool? isLoading,
   }) {
     return CartState(
       cartItems: cartItems ?? this.cartItems,
       totalPrice: totalPrice ?? this.totalPrice,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
 
 class CartNotifier extends StateNotifier<CartState> {
-  CartNotifier() : super(CartState.initial()) {
+  final Ref ref;
+  CartNotifier(this.ref) : super(CartState.initial()) {
     loadCart();
   }
-
   Future<void> loadCart() async {
+    state = state.copyWith(isLoading: true);
+
     final cartMaps = await ProductDatabase.instance.getAllCartItems();
     final cartItems = cartMaps.map((e) => CartItem.fromMap(e)).toList();
     final total = _calculateTotal(cartItems);
 
-    state = state.copyWith(cartItems: cartItems, totalPrice: total);
+    state = state.copyWith(cartItems: cartItems, totalPrice: total, isLoading: false);
   }
+
 
   double _calculateTotal(List<CartItem> items) {
     double total = 0;
@@ -49,10 +61,14 @@ class CartNotifier extends StateNotifier<CartState> {
     return total;
   }
 
-  Future<void> addToCart(ProductModel product) async {
-    await ProductDatabase.instance.addOrUpdateCartItem(product);
-    await loadCart();
+  Future<void> addToCart(ProductModel product, int quantity) async {
+    await ProductDatabase.instance.addOrUpdateCartItem(product, quantity);
+    await Future.wait([
+      loadCart(),
+      ref.read(productProvider.notifier).getProduct(),
+    ]);
   }
+
 
   Future<void> incrementQuantity(int productId) async {
     final currentItem = state.cartItems.firstWhere((e) => e.productId == productId);
@@ -84,5 +100,5 @@ class CartNotifier extends StateNotifier<CartState> {
 }
 
 final cartProvider = StateNotifierProvider<CartNotifier, CartState>((ref) {
-  return CartNotifier();
+  return CartNotifier(ref);
 });

@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:ecom_task/common/service/local_storage/shared_preference.dart';
+import 'package:ecom_task/service/local_storage/shared_preference.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {

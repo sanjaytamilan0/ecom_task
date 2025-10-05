@@ -106,7 +106,19 @@ class _ProductViewState extends ConsumerState<ProductView> {
                         ref.read(productProvider.notifier).toggleLike(data.id);
                       },
 
-                      onAddToCart: () => ref.read(cartProvider.notifier).addToCart(data),
+                      onAddToCart: () {
+                        ref.read(cartProvider.notifier).addToCart(data, 1);
+                      },
+                      onIncrement: () {
+                        ref.read(cartProvider.notifier).addToCart(data, data.cartQuantity + 1);
+                      },
+                      onDecrement: () {
+                        if (data.cartQuantity > 1) {
+                          ref.read(cartProvider.notifier).addToCart(data, data.cartQuantity - 1);
+                        } else {
+                          ref.read(cartProvider.notifier).removeItem(data.id);
+                        }
+                      },
                       cardClick: () {
                         Get.toNamed(AppRoutes.productDetailView, arguments: {
                           "product": data,

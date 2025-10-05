@@ -1,4 +1,5 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
+import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
 import 'package:ecom_task/screens/order_screen/model/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,18 +8,19 @@ import '../riverpod/order_notifier.dart';
 class OrderListScreen extends ConsumerWidget {
   const OrderListScreen({super.key});
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orders = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider);
 
     return Scaffold(
       backgroundColor: AppColor().bgColor,
-      appBar: AppBar(
-        backgroundColor: AppColor().primaryColor,
-        title:  Text("My Orders",style: TextStyle(color: AppColor().white),),
-        elevation: 2,
-      ),
-      body: orders.isEmpty
+      appBar: CustomAppBar(title: "My Orders", showLeading: false),
+      body: orderState.isLoading && orderState.orders.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : orderState.error != null
+          ? Center(child: Text('Error: ${orderState.error}'))
+          : orderState.orders.isEmpty
           ? const Center(
         child: Text(
           "You have no past orders.",
@@ -27,9 +29,9 @@ class OrderListScreen extends ConsumerWidget {
       )
           : ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: orders.length,
+        itemCount: orderState.orders.length,
         itemBuilder: (context, index) {
-          final order = orders[index];
+          final order = orderState.orders[index];
           return _OrderCard(order: order);
         },
       ),
@@ -52,8 +54,7 @@ class _OrderCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 3,
       child: InkWell(
-        onTap: () {
-        },
+        onTap: () {},
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -61,13 +62,12 @@ class _OrderCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "order no:${order.id.toString()}",
+                          "Order No: ${order.id}",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
@@ -77,7 +77,7 @@ class _OrderCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "order Item: ${order.cartItems.length}",
+                          "Order Items: ${order.cartItems.length}",
                           style: TextStyle(color: Colors.grey[700]),
                         ),
                         const SizedBox(height: 4),
@@ -92,7 +92,6 @@ class _OrderCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -109,7 +108,7 @@ class _OrderCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 children: order.cartItems
                     .take(3)
@@ -127,7 +126,6 @@ class _OrderCard extends StatelessWidget {
                 ))
                     .toList(),
               ),
-
             ],
           ),
         ),

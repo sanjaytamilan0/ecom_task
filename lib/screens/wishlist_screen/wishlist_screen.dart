@@ -1,5 +1,6 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
 import 'package:ecom_task/common/app_route/app_route_name.dart';
+import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
 import 'package:ecom_task/screens/product_view/widget/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';// your product card widget
@@ -31,10 +32,7 @@ class WishlistScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColor().bgColor,
-      appBar: AppBar(
-        backgroundColor: AppColor().primaryColor,
-        title:  Text('Wishlist',style: TextStyle(color: AppColor().white),),
-      ),
+      appBar: CustomAppBar(title: "Wishlist",showLeading: false,),
       body: ListView.builder(
         itemCount: likedProducts.length,
         itemBuilder: (context, index) {
@@ -42,7 +40,21 @@ class WishlistScreen extends ConsumerWidget {
           return ProductCard(product: product,onLikeToggle: () {
             ref.read(productProvider.notifier).toggleLike(product.id);
 
-          },  onAddToCart: () => ref.read(cartProvider.notifier).addToCart(product),
+          },
+
+            onAddToCart: () {
+              ref.read(cartProvider.notifier).addToCart(product, 1);
+            },
+            onIncrement: () {
+              ref.read(cartProvider.notifier).addToCart(product, product.cartQuantity + 1);
+            },
+            onDecrement: () {
+              if (product.cartQuantity > 1) {
+                ref.read(cartProvider.notifier).addToCart(product, product.cartQuantity - 1);
+              } else {
+                ref.read(cartProvider.notifier).removeItem(product.id);
+              }
+            },
             cardClick: () {
               Get.toNamed(AppRoutes.productDetailView,arguments: {
                 "product":product

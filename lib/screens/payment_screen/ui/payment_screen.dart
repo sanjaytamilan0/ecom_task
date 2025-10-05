@@ -1,4 +1,5 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
+import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -71,10 +72,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
 
     return Scaffold(
       backgroundColor: AppColor().bgColor,
-      appBar: AppBar(
-        title:  Text('Add Payment Method',style: TextStyle(color: AppColor().white),),
-        backgroundColor: AppColor().primaryColor,
-      ),
+      appBar: CustomAppBar(title: "Payment Details",showLeading: true,),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

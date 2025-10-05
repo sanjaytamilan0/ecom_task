@@ -1,6 +1,6 @@
 
 
-import 'package:ecom_task/common/service/api_client/api_client.dart';
+import 'package:ecom_task/service/api_client/api_client.dart';
 
 class Repo {
   Future<dynamic> getProduct() async {

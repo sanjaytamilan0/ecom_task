@@ -7,7 +7,7 @@ class ProductModel {
   final String image;
   final Rating rating;
   final bool isLiked;
-  final int cartQuantity; // ✅ New field for quantity in cart
+  final int cartQuantity;
 
   ProductModel({
     required this.id,
@@ -18,7 +18,7 @@ class ProductModel {
     required this.image,
     required this.rating,
     this.isLiked = false,
-    this.cartQuantity = 0, // ✅ Default value
+    this.cartQuantity = 0,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {

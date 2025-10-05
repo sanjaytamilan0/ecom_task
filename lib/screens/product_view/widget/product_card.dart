@@ -7,12 +7,16 @@ class ProductCard extends StatelessWidget {
   final VoidCallback onLikeToggle;
   final VoidCallback onAddToCart;
   final VoidCallback cardClick;
+  final VoidCallback? onIncrement;
+  final VoidCallback? onDecrement;
 
   const ProductCard({
     required this.product,
     required this.onLikeToggle,
     required this.onAddToCart,
     required this.cardClick,
+    this.onIncrement,
+    this.onDecrement,
     Key? key,
   }) : super(key: key);
 
@@ -33,6 +37,7 @@ class ProductCard extends StatelessWidget {
           ),
           child: Row(
             children: [
+              // ---------- PRODUCT IMAGE ----------
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
@@ -59,6 +64,7 @@ class ProductCard extends StatelessWidget {
 
               const SizedBox(width: 16),
 
+              // ---------- PRODUCT INFO ----------
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,13 +86,12 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Text(
                           "₹ ${product.price.toStringAsFixed(2)}",
-                          style:  TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                             color: AppColor().primaryColor,
                           ),
                         ),
-                        const SizedBox(width: 10),
                       ],
                     ),
 
@@ -95,6 +100,7 @@ class ProductCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // ---------- LIKE BUTTON ----------
                         InkWell(
                           borderRadius: BorderRadius.circular(30),
                           onTap: onLikeToggle,
@@ -112,23 +118,43 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
 
-                        ElevatedButton(
-                          onPressed: onAddToCart,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:  AppColor().primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        // ---------- CART ACTION BUTTON ----------
+                        if (product.cartQuantity == 0)
+                          ElevatedButton(
+                            onPressed: onAddToCart,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColor().primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          ),
-                          child:  Text(
-                            "Buy Now",
-                            style: TextStyle(
+                            child: Text(
+                              "Buy Now",
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
-                                color: AppColor().white),
+                                color: AppColor().white,
+                              ),
+                            ),
+                          )
+                        else
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: onDecrement,
+                                icon: Icon(Icons.remove_circle_outline, color: AppColor().primaryColor),
+                              ),
+                              Text(
+                                product.cartQuantity.toString(),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                              IconButton(
+                                onPressed: onIncrement,
+                                icon: Icon(Icons.add_circle_outline, color: AppColor().primaryColor),
+                              ),
+                            ],
                           ),
-                        ),
                       ],
                     ),
                   ],

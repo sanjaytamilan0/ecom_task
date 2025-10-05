@@ -56,7 +56,9 @@ class ProductState {
 
 
 class ProductNotifier extends StateNotifier<ProductState> {
-  ProductNotifier() : super(ProductState.initial());
+  ProductNotifier() : super(ProductState.initial()){
+    getProduct();
+  }
   Timer? _debounce;
 
   Future<void> getProduct() async {
@@ -74,8 +76,12 @@ class ProductNotifier extends StateNotifier<ProductState> {
               (localProd) => localProd.id == apiProd.id,
           orElse: () => apiProd,
         );
-        return apiProd.copyWith(isLiked: localProd.isLiked);
+        return apiProd.copyWith(
+          isLiked: localProd.isLiked,
+          cartQuantity: localProd.cartQuantity,  // Add this line
+        );
       }).toList();
+
       await ProductDatabase.instance.insertProducts(mergedProducts);
 
       final likedList = mergedProducts.where((product) => product.isLiked).toList();

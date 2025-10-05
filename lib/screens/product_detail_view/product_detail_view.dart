@@ -1,4 +1,5 @@
 import 'package:ecom_task/common/app_colors/app_colors.dart';
+import 'package:ecom_task/common/widgets/common_app_bar/common_app_bar.dart';
 import 'package:ecom_task/screens/cart_screen/riverpod/cart_notifier.dart';
 import 'package:ecom_task/screens/product_view/model/product_model.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,9 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
     super.initState();
     final args = Get.arguments as Map<String, dynamic>;
     product = args['product'] as ProductModel;
+    quantity = product.cartQuantity > 0 ? product.cartQuantity : 1;
+    print(quantity);
+
   }
 
   @override
@@ -29,17 +33,7 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
 
     return Scaffold(
       backgroundColor: AppColor().bgColor,
-      appBar: AppBar(
-        title: Text(
-          product.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: AppColor().white),
-        ),
-        elevation: 0,
-        backgroundColor: AppColor().primaryColor,
-
-      ),
+      appBar: CustomAppBar(title: product.title,showLeading: true,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -139,7 +133,7 @@ class _ProductDetailViewState extends ConsumerState<ProductDetailView> {
               height: 50,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ref.read(cartProvider.notifier).addToCart(product);
+                  ref.read(cartProvider.notifier).addToCart(product,quantity);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text("Added $quantity item(s) to cart"),
